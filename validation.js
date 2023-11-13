@@ -1,13 +1,13 @@
 const { body, check, param, query } = require('express-validator');
-const illegalCharacters = /^(?!.*([\s\.\,])).*$/;
+const illegalCharacters = /.*/;
 const mustBeDigit = /\d+/;
 const mustBeDie = /^\d+[dD]\d+$/;
-const ammoCategories = /^(hanguns|other|big guns|rifles)$/;
+const ammoCategories = /^(handguns|other|big guns|rifles)$/;
 const img = /^.*\.(webp|jpe?g|png|gif|bmp|svg)$/;
 
 //Add Ammo
 exports.postAmmoValidation = [
-    check('name', 'name failed to validate, try replacing spaces with hyphens(-) and periods with underscores(_)').matches(illegalCharacters),
+    check('name', 'name failed to validate, try replacing spaces with hyphens(-) and periods with underscores(_)').notEmpty(),
     check('value', 'value must be a digit.').matches(mustBeDigit),
     check('ac', 'ac must be a valid digit.').matches(mustBeDigit),
     check('dr', 'dr must be a valid digit.').matches(mustBeDigit),
@@ -15,12 +15,8 @@ exports.postAmmoValidation = [
     check('dmg', 'dmg must be a valid die. Example: 1d6, 12d4, 1d100').matches(mustBeDie),
     check('img', 'img must be an image format. Example: picture.webp | https://hosting.net/image.png | for no image enter: no_image.png').matches(img),
     check('category').custom(arr => {
-        const boolArray = arr.map(input => {
-            if(input.matches(ammoCategories)){
-                return true;
-            }
-        })
-        if(boolArray.includes(false)){
+        const isValid = arr.every(input => ammoCategories.test(input))
+        if(!isValid){
             throw new Error('Invalid category, please enter a valid category.')
         }
         return true
@@ -32,8 +28,7 @@ exports.deleteValidation = [
 ]
 
 exports.putAmmoValidation = [
-    check('id').isMongoId(),
-    check('name').optional().matches(illegalCharacters).withMessage('name failed to validate, try replacing spaces with hyphens(-) and periods with underscores(_)'),
+    param('id').isMongoId(),
     check('value').matches(mustBeDigit).withMessage('value must be a digit.').matches(mustBeDigit),
     check('ac').optional().matches(mustBeDigit).withMessage('ac must be a valid digit.'),
     check('dr').optional().matches(mustBeDigit).withMessage('dr must be a valid digit.'),
@@ -41,12 +36,8 @@ exports.putAmmoValidation = [
     check('dmg').optional().matches(mustBeDie).withMessage('dmg must be a valid die. Example: 1d6, 12d4, 1d100'),
     check('img').optional().matches(img).withMessage('img must be an image format. Example: picture.webp | https://hosting.net/image.png | for no image enter: no_image.png'),
     check('category').optional().custom(arr => {
-        const boolArray = arr.map(input => {
-            if(input.matches(ammoCategories)){
-                return true;
-            }
-        })
-        if(boolArray.includes(false)){
+        const isValid = arr.every(input => ammoCategories.test(input));
+        if(!isValid){
             throw new Error('Invalid category, please enter a valid category.')
         }
         return true
@@ -57,6 +48,7 @@ exports.putAmmoValidation = [
 //Armor
 
 exports.postArmorValidation = [
+    check('name', 'name failed to validate, try replacing spaces with hyphens(-) and periods with underscores(_)').notEmpty(),
     check('value', 'value must be a valid integer').isInt(),
     check('ac', 'ac must be valid integer').isInt(),
     check('elecRes', 'elecRes must be valid integer').isInt(),
@@ -93,6 +85,7 @@ exports.postArmorValidation = [
 ]
 
 exports.putArmorValidation = [
+    param('id').isMongoId(),
     check('value').optional().isInt().withMessage('value must be a valid integer'),
     check('ac').optional().isInt().withMessage('ac must be valid integer'),
     check('elecRes').optional().isInt().withMessage('elecRes must be valid integer'),
