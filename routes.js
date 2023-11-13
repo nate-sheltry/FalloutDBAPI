@@ -69,10 +69,10 @@ router.get('/Resources/:collection/library', async (req, res)=>{
     const start = performance.now();
     const collection = req.params.collection
     if(collection == 'Ammo'){
-        res.json(Ammo[0]);
+        res.status(200).json(Ammo[0]);
     }
     else if(collection == 'Armor'){
-        res.json(Armor[0]);
+        res.status(200).json(Armor[0]);
     }
     const end = performance.now()
     console.log('Result: ' + `${end-start}`)
