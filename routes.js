@@ -4,6 +4,7 @@ const validation = require('./validation')
 const { ObjectId } = require('mongodb')
 const Ammo = [];
 const Armor = [];
+const contentTypeJSON = 'application/json; charset=UTF-8';
 
 function serverError(res){
     res.status(500).json({ success: false, error: 'Internal server error' });
@@ -72,7 +73,7 @@ router.get('/Resources/:collection/library', async (req, res)=>{
         res.status(200).json(Ammo[0]);
     }
     else if(collection == 'Armor'){
-        res.status(200).json(Armor[0]);
+        res.status(200).set("content-type", contentTypeJSON).json(Armor[0]);
     }
     const end = performance.now()
     console.log('Result: ' + `${end-start}`)
